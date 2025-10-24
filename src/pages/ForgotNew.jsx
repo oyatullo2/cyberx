@@ -41,7 +41,7 @@ export default function ForgotNew() {
         {err && <div className="mb-4 text-red-400">{err}</div>}
         <form onSubmit={submit} className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
           <FormInput label="Yangi parol" value={p1} onChange={setP1} type="password" placeholder="Kamida 8 belgi" />
-          <FormInput label="Parolni tasdiqlang" value={p2} onChange={setP2} type="password" placeholder="Yangi parolni takrorlang" />
+          <FormInput label="Parolni tasdiqlang" value={p2} onChange={setP2} type="password" placeholder="Yangi parolni tasdiqlang" />
           <Button type="submit">Parolni yangilash</Button>
         </form>
       </div>

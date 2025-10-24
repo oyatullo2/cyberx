@@ -31,9 +31,7 @@ export default function ForgotVerify() {
   function maskEmail(email) {
     const [u, d] = email.split("@");
     if (!d) return email;
-    return (
-      u.slice(0, 2) + "*".repeat(Math.max(u.length - 3, 1)) + "@" + d
-    );
+    return u.slice(0, 2) + "*".repeat(Math.max(u.length - 3, 1)) + "@" + d;
   }
 
   const verify = async (e) => {
@@ -88,10 +86,10 @@ export default function ForgotVerify() {
           className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4"
         >
           <FormInput
-            label="Kod (6 xonali)"
+            label="Kod 6 xonalik !"
             value={code}
             onChange={setCode}
-            placeholder="123456"
+            placeholder="******"
           />
 
           <div className="flex gap-2">
@@ -102,7 +100,7 @@ export default function ForgotVerify() {
               type="button"
               onClick={resend}
               disabled={loading}
-              className="rounded-xl border border-slate-700 px-4 py-3 hover:bg-slate-800"
+              className="rounded-xl border border-slate-700 px-4 py-0 hover:bg-slate-800"
             >
               {loading ? "..." : "Qayta yuborish"}
             </button>

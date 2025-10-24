@@ -11,13 +11,14 @@ import ForgotNew from "./pages/ForgotNew.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Users from "./pages/Users.jsx";
 import Settings from "./pages/Settings.jsx";
+import Messages from "./pages/Messages.jsx";
+import Help from "./pages/Help.jsx";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      // 🔹 Tashqi sahifalar (login qilinmaganlar uchun)
       { path: "/", element: <Login /> },
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
@@ -26,12 +27,13 @@ export const router = createBrowserRouter([
       { path: "/forgot-verify", element: <ForgotVerify /> },
       { path: "/forgot-new", element: <ForgotNew /> },
 
-      // 🔒 Ichki sahifalar (faqat login bo‘lgandan keyin)
       {
         element: <ProtectedRoute />,
         children: [
           { path: "/dashboard", element: <Dashboard /> },
           { path: "/users", element: <Users /> },
+          { path: "/messages", element: <Messages /> },
+          { path: "/help", element: <Help /> },
           { path: "/settings", element: <Settings /> },
         ],
       },

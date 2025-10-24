@@ -67,14 +67,14 @@ export default function VerifyEmail() {
             label="Tasdiqlash kodi"
             value={code}
             onChange={setCode}
-            placeholder="123456"
+            placeholder="******"
           />
           <div className="flex gap-2">
             <Button type="submit">Tasdiqlash</Button>
             <button
               type="button"
               onClick={resend}
-              className="rounded-xl border border-slate-700 px-4 py-3"
+              className="rounded-xl border border-slate-700 px-4 py-0"
             >
               Qayta yuborish
             </button>

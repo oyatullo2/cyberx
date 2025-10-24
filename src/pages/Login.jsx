@@ -25,7 +25,7 @@ export default function Login() {
         <h1 className="text-3xl font-extrabold mb-6">Kirish</h1>
         {err && <div className="mb-4 text-red-400">{err}</div>}
         <form onSubmit={submit} className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
-          <FormInput label="Username" value={username} onChange={setUsername} placeholder="oyat_uz" />
+          <FormInput label="Username" value={username} onChange={setUsername} placeholder="username" />
           <FormInput label="Parol" value={password} onChange={setPassword} type="password" placeholder="••••••••" />
           <Button type="submit">Login</Button>
           <div className="text-sm mt-4 flex justify-between">

@@ -11,9 +11,10 @@ export default function PostCreate() {
   const [images, setImages] = useState([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [dragOver, setDragOver] = useState(false);
 
   function handleFiles(e) {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || e.dataTransfer.files);
     setImages((prev) => [...prev, ...files]);
   }
 
@@ -52,20 +53,18 @@ export default function PostCreate() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-extrabold text-indigo-400 mb-4">
-        📸 Yangi post
-      </h1>
+    <div className="max-w-2xl mx-auto px-5 py-8">
+      <h1 className="text-2xl font-bold text-indigo-400 mb-5">Yangi post</h1>
 
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4"
+        className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5"
       >
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sarlavha (ixtiyoriy)"
-          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 outline-none"
+          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 outline-none"
         />
 
         <textarea
@@ -73,35 +72,62 @@ export default function PostCreate() {
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           placeholder="Bugun nimani o‘yladingiz?"
-          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 outline-none"
+          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 outline-none"
         />
 
         <div>
           <label className="block text-sm text-slate-300 mb-1">
-            Rasm (bir nechta tanlasa bo‘ladi)
+            Rasmlar (bir nechta tanlasa bo‘ladi)
           </label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFiles}
-            className="text-slate-300 text-sm"
-          />
+
+          {/* File input + DragDrop */}
+          <div
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              handleFiles(e);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            className={`rounded-xl border-2 ${
+              dragOver
+                ? "border-indigo-600 bg-slate-900/70"
+                : "border-slate-700 bg-slate-950/70"
+            } text-sm text-slate-300 px-3 py-4 text-center cursor-pointer`}
+          >
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFiles}
+              className="hidden"
+              id="fileInput"
+            />
+            <label htmlFor="fileInput" className="block cursor-pointer">
+              📁 Fayllarni tanlang yoki bu joyga tashlang
+            </label>
+          </div>
 
           {/* Preview */}
           {images.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mt-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3">
               {images.map((file, i) => (
-                <div key={i} className="relative">
+                <div
+                  key={i}
+                  className="relative rounded-xl border border-slate-700 overflow-hidden"
+                >
                   <img
                     src={URL.createObjectURL(file)}
                     alt="preview"
-                    className="rounded-xl border border-slate-700 w-full aspect-square object-cover"
+                    className="object-cover w-full aspect-square"
                   />
                   <button
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 bg-black/70 hover:bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                    className="absolute top-1 right-1 bg-black/70 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
                   >
                     ✕
                   </button>
@@ -120,14 +146,15 @@ export default function PostCreate() {
         <div className="flex items-center gap-3">
           <button
             disabled={busy}
-            className="rounded-xl px-4 py-2 text-sm font-semibold border border-indigo-700/60 hover:bg-indigo-800/30 text-indigo-200 transition"
+            className="rounded-xl px-4 py-2 text-sm font-semibold border border-indigo-700/60 bg-slate-900 text-indigo-200"
           >
             {busy ? "Yuborilmoqda…" : "Post qilish"}
           </button>
+
           <button
             type="button"
             onClick={() => nav(-1)}
-            className="rounded-xl px-4 py-2 text-sm border border-slate-700 hover:bg-slate-800/40 text-slate-200 transition"
+            className="rounded-xl px-4 py-2 text-sm border border-slate-700 text-slate-200"
           >
             Bekor qilish
           </button>

@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -6,6 +6,7 @@ export default function Header() {
   const { user } = useAuth();
   const last = useRef(0);
   const [hidden, setHidden] = useState(false);
+  const nav = useNavigate();
 
   useEffect(() => {
     function onScroll() {
@@ -49,6 +50,27 @@ export default function Header() {
             >
               Messages
             </NavLink>
+
+            {/* ✚ Post qo‘shish ikonchasi */}
+            <button onClick={() => nav("/post/new")} title="Yangi post">
+              {/* Plus Square SVG (zamonaviy) */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-slate-200"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 8v8m4-4H8"
+                />
+                <rect x="3" y="3" width="18" height="18" rx="2.5" ry="2.5" />
+              </svg>
+            </button>
+
             <NavLink
               to="/help"
               className={({ isActive }) =>

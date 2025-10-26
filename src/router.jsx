@@ -13,6 +13,8 @@ import Users from "./pages/Users.jsx";
 import Settings from "./pages/Settings.jsx";
 import Messages from "./pages/Messages.jsx";
 import Help from "./pages/Help.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
+import PostCreate from "./pages/PostCreate.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +37,8 @@ export const router = createBrowserRouter([
           { path: "/messages", element: <Messages /> },
           { path: "/help", element: <Help /> },
           { path: "/settings", element: <Settings /> },
+          { path: "/users/:token", element: <UserProfile /> },
+          { path: "/post/new", element: <PostCreate /> },
         ],
       },
     ],

@@ -4,6 +4,7 @@ import { api } from "../api/client.js";
 import FormInput from "../components/FormInput.jsx";
 import Button from "../components/Button.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import TelegramButton from "../components/TelegramButton.jsx";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -14,14 +15,12 @@ export default function Register() {
   const nav = useNavigate();
   const { loginWithGoogleIdToken, loginWithGithubCode } = useAuth();
 
-  // 🌐 Dinamik redirect aniqlash (local yoki cyberex.uz)
   const redirectUri = useMemo(() => {
     const origin = window.location.origin;
     if (origin.includes("localhost")) return "http://localhost:5173/register";
     return "https://www.cyberex.uz/register";
   }, []);
 
-  // ✳️ Oddiy register form submit
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
@@ -33,11 +32,10 @@ export default function Register() {
     }
   };
 
-  // 🔵 Google orqali ro‘yxatdan o‘tish (custom dizaynda)
+  // Google signup
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!window.google || !clientId) return;
-
     try {
       window.google.accounts.id.initialize({
         client_id: clientId,
@@ -58,13 +56,12 @@ export default function Register() {
     }
   }, [nav, loginWithGoogleIdToken]);
 
-  // 🧠 Custom Google button (matn: “ro‘yxatdan o‘tish”)
   function handleGoogleSignup() {
     if (!window.google || !window.google.accounts?.id) return;
-    window.google.accounts.id.prompt(); // Google popup ochadi
+    window.google.accounts.id.prompt();
   }
 
-  // 🐙 GitHub orqali ro‘yxatdan o‘tish (redirect_uri’siz)
+  // GitHub signup
   function startGithubSignup() {
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
@@ -73,12 +70,10 @@ export default function Register() {
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
-  // GitHub code qaytganda backend orqali sessiya ochish
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
     const onRegisterPage = window.location.pathname === "/register";
-
     if (onRegisterPage && code) {
       (async () => {
         try {
@@ -133,9 +128,9 @@ export default function Register() {
           />
           <Button type="submit">Ro‘yxatdan o‘tish</Button>
 
-          {/* 🌈 Social signup tugmalari */}
+          {/* Social signup */}
           <div className="mt-4 space-y-3">
-            {/* 🟢 Custom Google Button */}
+            {/* Google */}
             <button
               type="button"
               onClick={handleGoogleSignup}
@@ -146,10 +141,12 @@ export default function Register() {
                 alt="Google"
                 className="w-5 h-5"
               />
-              <span className="font-medium">Google orqali ro‘yxatdan o‘tish</span>
+              <span className="font-medium">
+                Google orqali ro‘yxatdan o‘tish
+              </span>
             </button>
 
-            {/* 🐙 GitHub Button */}
+            {/* GitHub */}
             <button
               type="button"
               onClick={startGithubSignup}
@@ -163,21 +160,14 @@ export default function Register() {
               >
                 <path
                   fill="currentColor"
-                  d="M8 0C3.58 0 0 3.58 0 8a8.013 8.013 0 0 0 5.47 7.59c.4.075.55-.175.55-.387
-                     0-.19-.007-.693-.01-1.36-2.23.485-2.7-1.074-2.7-1.074-.364-.925-.89-1.17-.89-1.17
-                     -.727-.497.055-.487.055-.487.804.057 1.228.826 1.228.826.714 1.222 1.872.869 2.328.665
-                     .072-.517.28-.869.508-1.069-1.78-.2-3.644-.89-3.644-3.963
-                     0-.875.312-1.59.824-2.15-.083-.203-.357-1.017.078-2.122
-                     0 0 .672-.216 2.2.82a7.688 7.688 0 0 1 2.003-.27c.68.003
-                     1.366.092 2.004.27 1.528-1.036 2.198-.82 2.198-.82.437 1.105.162
-                     1.919.08 2.122.514.56.823 1.275.823 2.15 0 3.082-1.867 3.76-3.65
-                     3.956.288.25.543.738.543 1.486 0 1.074-.01 1.942-.01
-                     2.203 0 .215.147.467.553.387A8.014 8.014 0 0 0 16
-                     8c0-4.42-3.58-8-8-8Z"
+                  d="M8 0C3.58 0 0 3.58 0 8a8.013 8.013 0 0 0 5.47 7.59c.4.075.55-.175.55-.387 0-.19-.007-.693-.01-1.36-2.23.485-2.7-1.074-2.7-1.074-.364-.925-.89-1.17-.89-1.17-.727-.497.055-.487.055-.487.804.057 1.228.826 1.228.826.714 1.222 1.872.869 2.328.665.072-.517.28-.869.508-1.069-1.78-.2-3.644-.89-3.644-3.963 0-.875.312-1.59.824-2.15-.083-.203-.357-1.017.078-2.122 0 0 .672-.216 2.2.82a7.688 7.688 0 0 1 2.003-.27c.68.003 1.366.092 2.004.27 1.528-1.036 2.198-.82 2.198-.82.437 1.105.162 1.919.08 2.122.514.56.823 1.275.823 2.15 0 3.082-1.867 3.76-3.65 3.956.288.25.543.738.543 1.486 0 1.074-.01 1.942-.01 2.203 0 .215.147.467.553.387A8.014 8.014 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
                 />
               </svg>
               GitHub orqali ro‘yxatdan o‘tish
             </button>
+
+            {/* Telegram – register wording */}
+            <TelegramButton text="Telegram orqali ro‘yxatdan o‘tish" />
           </div>
 
           <div className="text-sm mt-4">

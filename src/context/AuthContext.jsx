@@ -20,14 +20,15 @@ export default function AuthProvider({ children }) {
     return res.user;
   }
 
-  async function adoptSessionFromGithub(code, redirectUri) {
+  async function adoptSessionFromGithub(code) {
     const res = await api("oauth_github.php", { body: { code } });
     saveSession(res.token, res.user);
     return res.user;
   }
 
-  // ⬇️ YANGI: Telegram payloadini backendga berib sessiya ochish
+  // ⬇️ Telegram orqali sessiya ochish (user payload backendda tekshiriladi)
   async function adoptSessionFromTelegram(telegramUserPayload) {
+    // { id, hash, auth_date, username?, first_name?, last_name?, photo_url? }
     const res = await api("oauth_telegram.php", { body: telegramUserPayload });
     saveSession(res.token, res.user);
     return res.user;
@@ -56,6 +57,7 @@ export default function AuthProvider({ children }) {
     const res = await api("login.php", { body: { username, password } });
     saveSession(res.token, res.user);
   };
+
   const logout = async () => {
     try {
       await api("logout.php", { method: "POST", token });
@@ -74,6 +76,8 @@ export default function AuthProvider({ children }) {
     setUser,
     loginWithGoogleIdToken: adoptSessionFromGoogle,
     loginWithGithubCode: adoptSessionFromGithub,
+    // ⬇️ Export qilamiz:
+    loginWithTelegram: adoptSessionFromTelegram,
   };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

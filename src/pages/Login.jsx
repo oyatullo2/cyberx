@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput.jsx";
 import Button from "../components/Button.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import TelegramButton from "../components/TelegramButton.jsx";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -26,7 +27,6 @@ export default function Login() {
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!window.google || !clientId) return;
-
     try {
       window.google.accounts.id.initialize({
         client_id: clientId,
@@ -56,7 +56,7 @@ export default function Login() {
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
-  // GitHub callbackni qayta ishlash
+  // GitHub callback
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
@@ -75,10 +75,9 @@ export default function Login() {
     }
   }, [loginWithGithubCode, nav]);
 
-  // 🧠 Custom Google login bosganda GSI ochish
   function handleGooglePopup() {
     if (!window.google || !window.google.accounts?.id) return;
-    window.google.accounts.id.prompt(); // popup modal ochadi
+    window.google.accounts.id.prompt();
   }
 
   return (
@@ -108,7 +107,7 @@ export default function Login() {
 
           {/* --- Social buttons --- */}
           <div className="mt-4 space-y-3">
-            {/* 🟢 Custom Google Button */}
+            {/* Google */}
             <button
               type="button"
               onClick={handleGooglePopup}
@@ -122,7 +121,7 @@ export default function Login() {
               <span className="font-medium">Google orqali kirish</span>
             </button>
 
-            {/* 🐙 GitHub Button */}
+            {/* GitHub */}
             <button
               type="button"
               onClick={startGithubLogin}
@@ -141,6 +140,9 @@ export default function Login() {
               </svg>
               GitHub orqali kirish
             </button>
+
+            {/* Telegram (Custom) */}
+            <TelegramButton text="Telegram orqali kirish" />
           </div>
 
           <div className="text-sm mt-4 flex justify-between">

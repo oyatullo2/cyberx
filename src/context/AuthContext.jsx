@@ -1,5 +1,7 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../api/client";
+import { api } from "../api/client.js";
+
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
 
@@ -9,6 +11,7 @@ export default function AuthProvider({ children }) {
   const [loading, setLoading] = useState(!!token);
 
   function saveSession(t, u) {
+    if (!t || !u) return;
     setToken(t);
     setUser(u);
     localStorage.setItem("token", t);
@@ -16,39 +19,37 @@ export default function AuthProvider({ children }) {
 
   async function adoptSessionFromGoogle(idToken) {
     const res = await api("oauth_google.php", { body: { id_token: idToken } });
-    saveSession(res.token, res.user);
-    return res.user;
+    const data = res.data ?? res;
+    saveSession(data.token, data.user);
+    return data.user;
   }
 
   async function adoptSessionFromGithub(code) {
     const res = await api("oauth_github.php", { body: { code } });
-    saveSession(res.token, res.user);
-    return res.user;
+    const data = res.data ?? res;
+    saveSession(data.token, data.user);
+    return data.user;
   }
 
- // ⬇️ YANGI: Telegram payloadini backendga berib sessiya ochish
-async function adoptSessionFromTelegram(telegramUserPayload) {
-  const res = await api("oauth_telegram.php", { body: telegramUserPayload });
-
-  // Backend format: { ok:true, data:{token, user} }
-  const data = res.data ?? res;
-
-  if (!data.token || !data.user) {
-    throw new Error("Telegram login xatosi: noto‘g‘ri server javobi");
+  // Telegram: backend javobini moslab qabul qiladi
+  async function adoptSessionFromTelegram(payload) {
+    const res = await api("oauth_telegram.php", { body: payload });
+    const data = res.data ?? res;
+    if (!data || !data.token || !data.user) {
+      throw new Error("Telegram login xatosi: noto‘g‘ri server javobi");
+    }
+    saveSession(data.token, data.user);
+    return data.user;
   }
-
-  saveSession(data.token, data.user);
-  return data.user;
-}
-
 
   useEffect(() => {
     if (!token) return;
     api("me.php", { method: "GET", token })
-      .then(setUser)
+      .then((u) => setUser(u))
       .catch(() => {
         setToken("");
         localStorage.removeItem("token");
+        setUser(null);
       })
       .finally(() => setLoading(false));
   }, [token]);
@@ -63,7 +64,9 @@ async function adoptSessionFromTelegram(telegramUserPayload) {
 
   const login = async (username, password) => {
     const res = await api("login.php", { body: { username, password } });
-    saveSession(res.token, res.user);
+    const data = res.data ?? res;
+    saveSession(data.token, data.user);
+    return data.user;
   };
 
   const logout = async () => {
@@ -71,8 +74,8 @@ async function adoptSessionFromTelegram(telegramUserPayload) {
       await api("logout.php", { method: "POST", token });
     } catch {}
     setToken("");
-    localStorage.removeItem("token");
     setUser(null);
+    localStorage.removeItem("token");
   };
 
   const value = {
@@ -82,10 +85,12 @@ async function adoptSessionFromTelegram(telegramUserPayload) {
     login,
     logout,
     setUser,
-    loginWithGoogleIdToken: adoptSessionFromGoogle,
-    loginWithGithubCode: adoptSessionFromGithub,
-    // ⬇️ Export qilamiz:
+    adoptSessionFromGoogle,
+    adoptSessionFromGithub,
+    adoptSessionFromTelegram, // aniq nom
+    // backwards compat / alias (agar boshqa fayllar eski nom bilan chaqirsa)
     loginWithTelegram: adoptSessionFromTelegram,
   };
+
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

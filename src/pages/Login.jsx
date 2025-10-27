@@ -14,10 +14,11 @@ export default function Login() {
 
   // 🌐 Dinamik redirect aniqlash
   const redirectUri = useMemo(() => {
-    const origin = window.location.origin;
-    if (origin.includes("localhost")) return "http://localhost:5173/login";
-    return "https://cyberex.uz/login";
-  }, []);
+  const origin = window.location.origin;
+  if (origin.includes("localhost")) return "http://localhost:5173/login";
+  return "https://www.cyberex.uz/login";
+}, []);
+
 
   const submit = async (e) => {
     e.preventDefault();

@@ -17,10 +17,11 @@ export default function Register() {
 
   // 🌐 Dinamik redirect aniqlash (local yoki cyberex.uz)
   const redirectUri = useMemo(() => {
-    const origin = window.location.origin;
-    if (origin.includes("localhost")) return "http://localhost:5173/register";
-    return "https://cyberex.uz/register";
-  }, []);
+  const origin = window.location.origin;
+  if (origin.includes("localhost")) return "http://localhost:5173/login";
+  return "https://www.cyberex.uz/login";
+}, []);
+
 
   // ✳️ Oddiy register form submit
   const submit = async (e) => {

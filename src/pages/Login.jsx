@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
 import FormInput from "../components/FormInput.jsx";
 import Button from "../components/Button.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import TelegramButton from "../components/TelegramButton.jsx";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const nav = useNavigate();
-  const {
-    login,
-    loginWithGoogleIdToken,
-    loginWithGithubCode,
-    loginWithTelegramPayload,
-  } = useAuth();
+  const { login, loginWithGoogleIdToken, loginWithGithubCode } = useAuth();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -27,33 +23,38 @@ export default function Login() {
     }
   };
 
-  // Google Sign-In
+  // 🌐 Google Sign-In custom style
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!window.google || !clientId) return;
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: async (response) => {
-        try {
-          const idToken = response.credential;
-          await loginWithGoogleIdToken(idToken);
-          nav("/dashboard");
-        } catch (e) {
-          setErr(e.message);
-        }
-      },
-      ux_mode: "popup",
-    });
-  }, [loginWithGoogleIdToken, nav]);
+    try {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          try {
+            setErr("");
+            const idToken = response.credential;
+            await loginWithGoogleIdToken(idToken);
+            nav("/dashboard");
+          } catch (e) {
+            setErr(e.message || "Google login xatosi");
+          }
+        },
+        ux_mode: "popup",
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [nav, loginWithGoogleIdToken]);
 
-  // GitHub login
-  const startGithubLogin = () => {
+  // 🐙 GitHub Login
+  function startGithubLogin() {
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
       scope: "read:user user:email",
     });
-    window.location.href = `https://github.com/login/oauth/authorize?${params}`;
-  };
+    window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
+  }
 
   // GitHub callback
   useEffect(() => {
@@ -62,39 +63,29 @@ export default function Login() {
     if (window.location.pathname === "/login" && code) {
       (async () => {
         try {
+          setErr("");
           await loginWithGithubCode(code);
-          nav("/dashboard");
-        } catch (e) {
-          setErr(e.message);
-        } finally {
           url.searchParams.delete("code");
           window.history.replaceState({}, "", url.pathname);
+          nav("/dashboard");
+        } catch (e) {
+          setErr(e.message || "GitHub login xatosi");
         }
       })();
     }
   }, [loginWithGithubCode, nav]);
 
-  // Telegram login
-  useEffect(() => {
-    if (!window.Telegram?.Login) return;
-    window.Telegram.Login.auth(
-      { bot_id: import.meta.env.VITE_TG_BOT_ID, request_access: true },
-      async (payload) => {
-        try {
-          await loginWithTelegramPayload(payload);
-          nav("/dashboard");
-        } catch (e) {
-          setErr(e.message);
-        }
-      }
-    );
-  }, [loginWithTelegramPayload, nav]);
+  function handleGooglePopup() {
+    if (!window.google || !window.google.accounts?.id) return;
+    window.google.accounts.id.prompt();
+  }
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-extrabold mb-6">Kirish</h1>
         {err && <div className="mb-4 text-red-400">{err}</div>}
+
         <form
           onSubmit={submit}
           className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800"
@@ -114,22 +105,27 @@ export default function Login() {
           />
           <Button type="submit">Login</Button>
 
-          {/* --- Social --- */}
+          {/* --- Social buttons --- */}
           <div className="mt-4 space-y-3">
+            {/* Google */}
             <button
-              onClick={() => window.google.accounts.id.prompt()}
-              className="w-full rounded-xl bg-white text-gray-900 px-4 py-3 flex items-center justify-center gap-3 border border-gray-300"
+              type="button"
+              onClick={handleGooglePopup}
+              className="w-full rounded-xl bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-gray-300 transition"
             >
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
                 className="w-5 h-5"
               />
-              Google orqali kirish
+              <span className="font-medium">Google orqali kirish</span>
             </button>
 
+            {/* GitHub */}
             <button
+              type="button"
               onClick={startGithubLogin}
-              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 text-white px-4 py-3 flex items-center justify-center gap-3 border border-slate-700"
+              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-slate-700 text-slate-100 transition"
             >
               <svg
                 height="20"
@@ -137,23 +133,16 @@ export default function Login() {
                 viewBox="0 0 16 16"
                 className="opacity-90"
               >
-                <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8.013..." />
+                <path
+                  fill="currentColor"
+                  d="M8 0C3.58 0 0 3.58 0 8a8.013 8.013 0 0 0 5.47 7.59c.4.075.55-.175.55-.387 0-.19-.007-.693-.01-1.36-2.23.485-2.7-1.074-2.7-1.074-.364-.925-.89-1.17-.89-1.17-.727-.497.055-.487.055-.487.804.057 1.228.826 1.228.826.714 1.222 1.872.869 2.328.665.072-.517.28-.869.508-1.069-1.78-.2-3.644-.89-3.644-3.963 0-.875.312-1.59.824-2.15-.083-.203-.357-1.017.078-2.122 0 0 .672-.216 2.2.82a7.688 7.688 0 0 1 2.003-.27c.68.003 1.366.092 2.004.27 1.528-1.036 2.198-.82 2.198-.82.437 1.105.162 1.919.08 2.122.514.56.823 1.275.823 2.15 0 3.082-1.867 3.76-3.65 3.956.288.25.543.738.543 1.486 0 1.074-.01 1.942-.01 2.203 0 .215.147.467.553.387A8.014 8.014 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+                />
               </svg>
               GitHub orqali kirish
             </button>
 
-            <div
-              id="telegram-login-container"
-              className="flex justify-center mt-2"
-            >
-              <script
-                async
-                src="https://telegram.org/js/telegram-widget.js?7"
-                data-telegram-login={import.meta.env.VITE_TG_BOT_USERNAME}
-                data-size="large"
-                data-onauth="onTelegramAuth(user)"
-              ></script>
-            </div>
+            {/* Telegram (Custom) */}
+            <TelegramButton text="Telegram orqali kirish" />
           </div>
 
           <div className="text-sm mt-4 flex justify-between">

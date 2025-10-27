@@ -8,31 +8,75 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(!!token);
 
+  function saveSession(t, u) {
+    setToken(t);
+    setUser(u);
+    localStorage.setItem("token", t);
+  }
+
+  async function adoptSessionFromGoogle(idToken) {
+    const res = await api("oauth_google.php", { body: { id_token: idToken } });
+    saveSession(res.token, res.user);
+    return res.user;
+  }
+
+  async function adoptSessionFromGithub(code, redirectUri) {
+    const res = await api("oauth_github.php", {
+      body: { code, redirect_uri: redirectUri },
+    });
+    saveSession(res.token, res.user);
+    return res.user;
+  }
+
+  // ⬇️ YANGI: Telegram payloadini backendga berib sessiya ochish
+  async function adoptSessionFromTelegram(telegramUserPayload) {
+    const res = await api("oauth_telegram.php", { body: telegramUserPayload });
+    saveSession(res.token, res.user);
+    return res.user;
+  }
+
   useEffect(() => {
     if (!token) return;
     api("me.php", { method: "GET", token })
       .then(setUser)
-      .catch(() => { setToken(""); localStorage.removeItem("token"); })
+      .catch(() => {
+        setToken("");
+        localStorage.removeItem("token");
+      })
       .finally(() => setLoading(false));
   }, [token]);
-
-  // real-time ping
+  
   useEffect(() => {
     if (!token) return;
-    const id = setInterval(() => { api("ping.php", { method: "POST", token }).catch(()=>{}); }, 30000);
+    const id = setInterval(() => {
+      api("ping.php", { method: "POST", token }).catch(() => {});
+    }, 30000);
     return () => clearInterval(id);
   }, [token]);
 
   const login = async (username, password) => {
     const res = await api("login.php", { body: { username, password } });
-    setToken(res.token);
-    localStorage.setItem("token", res.token);
-    setUser(res.user);
+    saveSession(res.token, res.user);
   };
   const logout = async () => {
-    try { await api("logout.php", { method: "POST", token }); } catch {}
-    setToken(""); localStorage.removeItem("token"); setUser(null);
+    try {
+      await api("logout.php", { method: "POST", token });
+    } catch {}
+    setToken("");
+    localStorage.removeItem("token");
+    setUser(null);
   };
-  const value = { token, user, loading, login, logout, setUser };
+
+  const value = {
+    token,
+    user,
+    loading,
+    login,
+    logout,
+    setUser,
+    loginWithGoogleIdToken: adoptSessionFromGoogle,
+    loginWithGithubCode: adoptSessionFromGithub,
+    loginWithTelegramPayload: adoptSessionFromTelegram, // ⬅️ YANGI
+  };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

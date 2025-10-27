@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput.jsx";
 import Button from "../components/Button.jsx";
@@ -10,15 +10,6 @@ export default function Login() {
   const [err, setErr] = useState("");
   const nav = useNavigate();
   const { login, loginWithGoogleIdToken, loginWithGithubCode } = useAuth();
-  const googleDivRef = useRef(null);
-
-  // 🌐 Dinamik redirect aniqlash
-  const redirectUri = useMemo(() => {
-  const origin = window.location.origin;
-  if (origin.includes("localhost")) return "http://localhost:5173/login";
-  return "https://www.cyberex.uz/login";
-}, []);
-
 
   const submit = async (e) => {
     e.preventDefault();
@@ -31,10 +22,10 @@ export default function Login() {
     }
   };
 
-  // 🟢 Google Sign-In
+  // 🌐 Google Sign-In custom style
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!window.google || !clientId || !googleDivRef.current) return;
+    if (!window.google || !clientId) return;
 
     try {
       window.google.accounts.id.initialize({
@@ -51,36 +42,25 @@ export default function Login() {
         },
         ux_mode: "popup",
       });
-
-      window.google.accounts.id.renderButton(googleDivRef.current, {
-        type: "standard",
-        shape: "pill",
-        theme: "filled_blue",
-        size: "large",
-        text: "signin_with",
-        logo_alignment: "left",
-        width: 320,
-      });
     } catch (e) {
       console.error(e);
     }
   }, [nav, loginWithGoogleIdToken]);
 
-  // 🐙 GitHub Login: dynamic redirect bilan
+  // 🐙 GitHub Login
   function startGithubLogin() {
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
-    scope: "read:user user:email",
-  });
+      scope: "read:user user:email",
+    });
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
-  // GitHub code qaytganda loginni bajarish
+  // GitHub callbackni qayta ishlash
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
-    const onLoginPage = window.location.pathname === "/login";
-    if (onLoginPage && code) {
+    if (window.location.pathname === "/login" && code) {
       (async () => {
         try {
           setErr("");
@@ -93,7 +73,13 @@ export default function Login() {
         }
       })();
     }
-  }, [loginWithGithubCode, nav, redirectUri]);
+  }, [loginWithGithubCode, nav]);
+
+  // 🧠 Custom Google login bosganda GSI ochish
+  function handleGooglePopup() {
+    if (!window.google || !window.google.accounts?.id) return;
+    window.google.accounts.id.prompt(); // popup modal ochadi
+  }
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
@@ -120,17 +106,27 @@ export default function Login() {
           />
           <Button type="submit">Login</Button>
 
-          {/* Social login buttons */}
+          {/* --- Social buttons --- */}
           <div className="mt-4 space-y-3">
-            <div
-              ref={googleDivRef}
-              className="w-full flex justify-center"
-            ></div>
+            {/* 🟢 Custom Google Button */}
+            <button
+              type="button"
+              onClick={handleGooglePopup}
+              className="w-full rounded-xl bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-gray-300 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="font-medium">Google orqali kirish</span>
+            </button>
 
+            {/* 🐙 GitHub Button */}
             <button
               type="button"
               onClick={startGithubLogin}
-              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-slate-700"
+              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-slate-700 text-slate-100 transition"
             >
               <svg
                 height="20"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import FormInput from "../components/FormInput.jsx";
@@ -13,15 +13,13 @@ export default function Register() {
   const [err, setErr] = useState("");
   const nav = useNavigate();
   const { loginWithGoogleIdToken, loginWithGithubCode } = useAuth();
-  const googleDivRef = useRef(null);
 
   // 🌐 Dinamik redirect aniqlash (local yoki cyberex.uz)
   const redirectUri = useMemo(() => {
-  const origin = window.location.origin;
-  if (origin.includes("localhost")) return "http://localhost:5173/login";
-  return "https://www.cyberex.uz/login";
-}, []);
-
+    const origin = window.location.origin;
+    if (origin.includes("localhost")) return "http://localhost:5173/register";
+    return "https://www.cyberex.uz/register";
+  }, []);
 
   // ✳️ Oddiy register form submit
   const submit = async (e) => {
@@ -35,10 +33,11 @@ export default function Register() {
     }
   };
 
-  // 🔵 Google orqali ro‘yxatdan o‘tish
+  // 🔵 Google orqali ro‘yxatdan o‘tish (custom dizaynda)
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!window.google || !clientId || !googleDivRef.current) return;
+    if (!window.google || !clientId) return;
+
     try {
       window.google.accounts.id.initialize({
         client_id: clientId,
@@ -49,32 +48,28 @@ export default function Register() {
             await loginWithGoogleIdToken(idToken);
             nav("/dashboard");
           } catch (e) {
-            setErr(e.message || "Google login xatosi");
+            setErr(e.message || "Google orqali ro‘yxatdan o‘tishda xatolik");
           }
         },
         ux_mode: "popup",
-      });
-
-      window.google.accounts.id.renderButton(googleDivRef.current, {
-        type: "standard",
-        shape: "pill",
-        theme: "filled_blue",
-        size: "large",
-        text: "signup_with",
-        logo_alignment: "left",
-        width: 320,
       });
     } catch (e) {
       console.error(e);
     }
   }, [nav, loginWithGoogleIdToken]);
 
-  // 🐙 GitHub orqali ro‘yxatdan o‘tish (dinamik redirect bilan)
+  // 🧠 Custom Google button (matn: “ro‘yxatdan o‘tish”)
+  function handleGoogleSignup() {
+    if (!window.google || !window.google.accounts?.id) return;
+    window.google.accounts.id.prompt(); // Google popup ochadi
+  }
+
+  // 🐙 GitHub orqali ro‘yxatdan o‘tish (redirect_uri’siz)
   function startGithubSignup() {
     const params = new URLSearchParams({
-    client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
-    scope: "read:user user:email",
-  });
+      client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
+      scope: "read:user user:email",
+    });
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
@@ -89,15 +84,12 @@ export default function Register() {
         try {
           setErr("");
           await loginWithGithubCode(code);
-
-
-          // URL tozalash
           url.searchParams.delete("code");
           url.searchParams.delete("state");
           window.history.replaceState({}, "", url.pathname);
           nav("/dashboard");
         } catch (e) {
-          setErr(e.message || "GitHub login xatosi");
+          setErr(e.message || "GitHub orqali ro‘yxatdan o‘tishda xatolik");
         }
       })();
     }
@@ -141,17 +133,27 @@ export default function Register() {
           />
           <Button type="submit">Ro‘yxatdan o‘tish</Button>
 
-          {/* 🌈 Social login tugmalari */}
+          {/* 🌈 Social signup tugmalari */}
           <div className="mt-4 space-y-3">
-            <div
-              ref={googleDivRef}
-              className="w-full flex justify-center"
-            ></div>
+            {/* 🟢 Custom Google Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignup}
+              className="w-full rounded-xl bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-gray-300 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="font-medium">Google orqali ro‘yxatdan o‘tish</span>
+            </button>
 
+            {/* 🐙 GitHub Button */}
             <button
               type="button"
               onClick={startGithubSignup}
-              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-slate-700"
+              className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-3 font-semibold shadow-lg flex items-center justify-center gap-3 border border-slate-700 text-slate-100 transition"
             >
               <svg
                 height="20"

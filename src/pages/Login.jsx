@@ -70,9 +70,8 @@ export default function Login() {
   function startGithubLogin() {
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
-      scope: "read:user user:email",
-      redirect_uri: redirectUri,
-    });
+    scope: "read:user user:email",
+  });
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
@@ -85,7 +84,7 @@ export default function Login() {
       (async () => {
         try {
           setErr("");
-          await loginWithGithubCode(code, redirectUri);
+          await loginWithGithubCode(code);
           url.searchParams.delete("code");
           window.history.replaceState({}, "", url.pathname);
           nav("/dashboard");

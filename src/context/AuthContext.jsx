@@ -21,9 +21,7 @@ export default function AuthProvider({ children }) {
   }
 
   async function adoptSessionFromGithub(code, redirectUri) {
-    const res = await api("oauth_github.php", {
-      body: { code, redirect_uri: redirectUri },
-    });
+    const res = await api("oauth_github.php", { body: { code } });
     saveSession(res.token, res.user);
     return res.user;
   }

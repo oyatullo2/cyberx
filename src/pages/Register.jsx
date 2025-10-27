@@ -72,10 +72,9 @@ export default function Register() {
   // 🐙 GitHub orqali ro‘yxatdan o‘tish (dinamik redirect bilan)
   function startGithubSignup() {
     const params = new URLSearchParams({
-      client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
-      scope: "read:user user:email",
-      redirect_uri: redirectUri,
-    });
+    client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
+    scope: "read:user user:email",
+  });
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
@@ -89,7 +88,8 @@ export default function Register() {
       (async () => {
         try {
           setErr("");
-          await loginWithGithubCode(code, redirectUri);
+          await loginWithGithubCode(code);
+
 
           // URL tozalash
           url.searchParams.delete("code");

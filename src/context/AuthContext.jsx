@@ -26,13 +26,21 @@ export default function AuthProvider({ children }) {
     return res.user;
   }
 
-  // ⬇️ Telegram orqali sessiya ochish (user payload backendda tekshiriladi)
-  async function adoptSessionFromTelegram(telegramUserPayload) {
-    // { id, hash, auth_date, username?, first_name?, last_name?, photo_url? }
-    const res = await api("oauth_telegram.php", { body: telegramUserPayload });
-    saveSession(res.token, res.user);
-    return res.user;
+ // ⬇️ YANGI: Telegram payloadini backendga berib sessiya ochish
+async function adoptSessionFromTelegram(telegramUserPayload) {
+  const res = await api("oauth_telegram.php", { body: telegramUserPayload });
+
+  // Backend format: { ok:true, data:{token, user} }
+  const data = res.data ?? res;
+
+  if (!data.token || !data.user) {
+    throw new Error("Telegram login xatosi: noto‘g‘ri server javobi");
   }
+
+  saveSession(data.token, data.user);
+  return data.user;
+}
+
 
   useEffect(() => {
     if (!token) return;

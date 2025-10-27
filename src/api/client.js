@@ -13,18 +13,28 @@ export function api(
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   return fetch(`${BASE_URL}/${path}`, {
-    method,
-    headers,
-    body: formData ? body : body ? JSON.stringify(body) : undefined,
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok || data.ok === false) {
-      const msg = data.error || `HTTP ${r.status}`;
-      throw new Error(msg);
-    }
-    return data.data ?? data;
-  });
+  method,
+  headers,
+  body: formData ? body : body ? JSON.stringify(body) : undefined,
+})
+.then(async (r) => {
+  if (!r.ok) {
+    const text = await r.text().catch(()=>null);
+    console.error('API ERROR RESPONSE TEXT', text);
+  }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || data.ok === false) {
+    const msg = data.error || `HTTP ${r.status}`;
+    throw new Error(msg);
+  }
+  return data.data ?? data;
+})
+.catch(err => {
+  console.error('API FETCH FAILED', { url: `${BASE_URL}/${path}`, err });
+  throw err;
+});
 }
+
 
 // 🧩 Foydalanuvchi uchun shifrlangan maxfiy token yaratish
 // token = base64(id) + '.' + imzo(HMAC-SHA256)

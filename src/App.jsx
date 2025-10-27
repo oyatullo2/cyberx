@@ -6,7 +6,11 @@ import { useState, useEffect } from "react";
 
 export default function App() {
   const location = useLocation();
-  const { loading } = useAuth();
+  const auth = useAuth();
+
+  // Agar AuthProvider hali tayyor bo‘lmasa yoki context yo‘q bo‘lsa
+  const loading = auth?.loading ?? true;
+
   const [pageLoading, setPageLoading] = useState(true);
 
   // sahifa almashganda yuklanish animatsiyasi

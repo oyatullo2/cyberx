@@ -45,7 +45,7 @@ export default function AuthProvider({ children }) {
       })
       .finally(() => setLoading(false));
   }, [token]);
-  
+
   useEffect(() => {
     if (!token) return;
     const id = setInterval(() => {
@@ -76,7 +76,6 @@ export default function AuthProvider({ children }) {
     setUser,
     loginWithGoogleIdToken: adoptSessionFromGoogle,
     loginWithGithubCode: adoptSessionFromGithub,
-    loginWithTelegramPayload: adoptSessionFromTelegram, // ⬅️ YANGI
   };
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

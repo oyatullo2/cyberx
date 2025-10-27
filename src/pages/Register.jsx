@@ -12,20 +12,17 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const nav = useNavigate();
-  const {
-    loginWithGoogleIdToken,
-    loginWithGithubCode,
-    loginWithTelegramPayload,
-  } = useAuth();
+  const { loginWithGoogleIdToken, loginWithGithubCode } = useAuth();
   const googleDivRef = useRef(null);
-  const telegramDivRef = useRef(null);
 
+  // 🌐 Dinamik redirect aniqlash (local yoki cyberex.uz)
   const redirectUri = useMemo(() => {
     const origin = window.location.origin;
     if (origin.includes("localhost")) return "http://localhost:5173/register";
     return "https://cyberex.uz/register";
   }, []);
 
+  // ✳️ Oddiy register form submit
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
@@ -37,7 +34,7 @@ export default function Register() {
     }
   };
 
-  // Google
+  // 🔵 Google orqali ro‘yxatdan o‘tish
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!window.google || !clientId || !googleDivRef.current) return;
@@ -47,7 +44,8 @@ export default function Register() {
         callback: async (response) => {
           try {
             setErr("");
-            await loginWithGoogleIdToken(response.credential);
+            const idToken = response.credential;
+            await loginWithGoogleIdToken(idToken);
             nav("/dashboard");
           } catch (e) {
             setErr(e.message || "Google login xatosi");
@@ -55,6 +53,7 @@ export default function Register() {
         },
         ux_mode: "popup",
       });
+
       window.google.accounts.id.renderButton(googleDivRef.current, {
         type: "standard",
         shape: "pill",
@@ -69,7 +68,7 @@ export default function Register() {
     }
   }, [nav, loginWithGoogleIdToken]);
 
-  // GitHub start
+  // 🐙 GitHub orqali ro‘yxatdan o‘tish (dinamik redirect bilan)
   function startGithubSignup() {
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_GITHUB_CLIENT_ID,
@@ -79,16 +78,19 @@ export default function Register() {
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }
 
-  // GitHub code
+  // GitHub code qaytganda backend orqali sessiya ochish
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
     const onRegisterPage = window.location.pathname === "/register";
+
     if (onRegisterPage && code) {
       (async () => {
         try {
           setErr("");
           await loginWithGithubCode(code, redirectUri);
+
+          // URL tozalash
           url.searchParams.delete("code");
           url.searchParams.delete("state");
           window.history.replaceState({}, "", url.pathname);
@@ -99,37 +101,6 @@ export default function Register() {
       })();
     }
   }, [loginWithGithubCode, nav, redirectUri]);
-
-  // Telegram
-  useEffect(() => {
-    if (!telegramDivRef.current) return;
-
-    window.__onTelegramAuth = async (tgUser) => {
-      try {
-        setErr("");
-        await loginWithTelegramPayload(tgUser);
-        nav("/dashboard");
-      } catch (e) {
-        setErr(e.message || "Telegram login xatosi");
-      }
-    };
-
-    const existing = document.querySelector("script[data-telegram-login]");
-    if (existing) return;
-
-    const s = document.createElement("script");
-    s.src = "https://telegram.org/js/telegram-widget.js?7";
-    s.async = true;
-    s.setAttribute(
-      "data-telegram-login",
-      import.meta.env.VITE_TELEGRAM_BOT_USERNAME || "cyberex_auth_bot"
-    );
-    s.setAttribute("data-size", "large");
-    s.setAttribute("data-userpic", "false");
-    s.setAttribute("data-onauth", "__onTelegramAuth(user)");
-    telegramDivRef.current.innerHTML = "";
-    telegramDivRef.current.appendChild(s);
-  }, [loginWithTelegramPayload, nav]);
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
@@ -169,7 +140,7 @@ export default function Register() {
           />
           <Button type="submit">Ro‘yxatdan o‘tish</Button>
 
-          {/* Social */}
+          {/* 🌈 Social login tugmalari */}
           <div className="mt-4 space-y-3">
             <div
               ref={googleDivRef}
@@ -189,16 +160,21 @@ export default function Register() {
               >
                 <path
                   fill="currentColor"
-                  d="M8 0C3.58 0 0 3.58 0 8a8.013...Z"
+                  d="M8 0C3.58 0 0 3.58 0 8a8.013 8.013 0 0 0 5.47 7.59c.4.075.55-.175.55-.387
+                     0-.19-.007-.693-.01-1.36-2.23.485-2.7-1.074-2.7-1.074-.364-.925-.89-1.17-.89-1.17
+                     -.727-.497.055-.487.055-.487.804.057 1.228.826 1.228.826.714 1.222 1.872.869 2.328.665
+                     .072-.517.28-.869.508-1.069-1.78-.2-3.644-.89-3.644-3.963
+                     0-.875.312-1.59.824-2.15-.083-.203-.357-1.017.078-2.122
+                     0 0 .672-.216 2.2.82a7.688 7.688 0 0 1 2.003-.27c.68.003
+                     1.366.092 2.004.27 1.528-1.036 2.198-.82 2.198-.82.437 1.105.162
+                     1.919.08 2.122.514.56.823 1.275.823 2.15 0 3.082-1.867 3.76-3.65
+                     3.956.288.25.543.738.543 1.486 0 1.074-.01 1.942-.01
+                     2.203 0 .215.147.467.553.387A8.014 8.014 0 0 0 16
+                     8c0-4.42-3.58-8-8-8Z"
                 />
               </svg>
               GitHub orqali ro‘yxatdan o‘tish
             </button>
-
-            <div
-              ref={telegramDivRef}
-              className="w-full flex justify-center"
-            ></div>
           </div>
 
           <div className="text-sm mt-4">

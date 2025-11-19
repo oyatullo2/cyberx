@@ -8,6 +8,9 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "crypto-js": "^4.2.0",
     "framer-motion": "^12.23.24",

@@ -75,10 +75,19 @@ export default function Login() {
     }
   }, [loginWithGithubCode, nav]);
 
-  function handleGooglePopup() {
-    if (!window.google || !window.google.accounts?.id) return;
-    window.google.accounts.id.prompt();
+ function handleGooglePopup() {
+  if (!window.google || !window.google.accounts?.id) {
+    console.warn("Google hali yuklanmagan");
+    return;
   }
+
+  try {
+    window.google.accounts.id.prompt();
+  } catch (err) {
+    console.error("Google prompt error:", err);
+  }
+}
+
 
   return (
     <div className="min-h-screen grid place-items-center p-6">

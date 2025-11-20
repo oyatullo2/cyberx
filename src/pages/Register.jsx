@@ -32,34 +32,44 @@ export default function Register() {
     }
   };
 
-  // Google signup
-  useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!window.google || !clientId) return;
-    try {
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: async (response) => {
-          try {
-            setErr("");
-            const idToken = response.credential;
-            await loginWithGoogleIdToken(idToken);
-            nav("/dashboard");
-          } catch (e) {
-            setErr(e.message || "Google orqali ro‘yxatdan o‘tishda xatolik");
-          }
-        },
-        ux_mode: "popup",
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }, [nav, loginWithGoogleIdToken]);
+useEffect(() => {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  if (!window.google || !clientId) return;
 
-  function handleGoogleSignup() {
-    if (!window.google || !window.google.accounts?.id) return;
-    window.google.accounts.id.prompt();
+  try {
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (response) => {
+        try {
+          setErr("");
+          const idToken = response.credential;
+          await loginWithGoogleIdToken(idToken);
+          nav("/dashboard");
+        } catch (e) {
+          setErr(e.message || "Google orqali ro‘yxatdan o‘tishda xatolik");
+        }
+      },
+      ux_mode: "popup",
+    });
+  } catch (e) {
+    console.error(e);
   }
+}, [nav, loginWithGoogleIdToken]);
+
+
+ function handleGoogleSignup() {
+  if (!window.google || !window.google.accounts?.id) {
+    console.warn("Google hali yuklanmagan");
+    return;
+  }
+
+  try {
+    window.google.accounts.id.prompt();
+  } catch (err) {
+    console.error("Google prompt error:", err);
+  }
+}
+
 
   // GitHub signup
   function startGithubSignup() {

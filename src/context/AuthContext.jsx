@@ -79,18 +79,24 @@ export default function AuthProvider({ children }) {
   };
 
   const value = {
-    token,
-    user,
-    loading,
-    login,
-    logout,
-    setUser,
-    adoptSessionFromGoogle,
-    adoptSessionFromGithub,
-    adoptSessionFromTelegram, // aniq nom
-    // backwards compat / alias (agar boshqa fayllar eski nom bilan chaqirsa)
-    loginWithTelegram: adoptSessionFromTelegram,
-  };
+  token,
+  user,
+  loading,
+  login,
+  logout,
+  setUser,
+
+  adoptSessionFromGoogle,
+  adoptSessionFromGithub,
+  adoptSessionFromTelegram,
+
+  // ALIAS — frontend chaqirishi uchun
+  loginWithGoogleIdToken: adoptSessionFromGoogle,
+  loginWithGithubCode: adoptSessionFromGithub,
+  loginWithTelegram: adoptSessionFromTelegram,
+};
+
+
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

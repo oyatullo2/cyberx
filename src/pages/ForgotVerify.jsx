@@ -41,7 +41,7 @@ export default function ForgotVerify() {
     setLoading(true);
     try {
       await api("verify_code.php", {
-        body: { email, code, type: "password_reset" },
+        body: { email, code, type: "reset_password" },
       });
       setMsg("Kod tasdiqlandi. Yangi parolni kiriting.");
       setTimeout(() => nav("/forgot-new", { state: { email, code } }), 700);
@@ -58,7 +58,7 @@ export default function ForgotVerify() {
     setLoading(true);
     try {
       await api("resend_code.php", {
-        body: { email, type: "password_reset" },
+        body: { email, type: "reset_password" },
       });
       setMsg("Kod qayta yuborildi.");
     } catch (er) {

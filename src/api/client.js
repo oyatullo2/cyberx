@@ -1,7 +1,7 @@
 // src/api/client.js
 import CryptoJS from "crypto-js";
 
-const BASE_URL = "https://68d6acb30ea01.myxvest1.ru/backend/public/api";
+const BASE_URL = "https://68d6acb30ea01.myxvest1.ru/backend/api";
 
 // 🔐 API so‘rov funksiyasi (mavjud kodingiz – o‘zgarmagan)
 export function api(

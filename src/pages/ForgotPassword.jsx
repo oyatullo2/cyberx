@@ -5,18 +5,30 @@ import FormInput from "../components/FormInput.jsx";
 import Button from "../components/Button.jsx";
 
 export default function ForgotPassword() {
-  const [email,setEmail]=useState("");
-  const [msg,setMsg]=useState("");
-  const [err,setErr]=useState("");
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
   const nav = useNavigate();
 
   const submit = async (e) => {
-    e.preventDefault(); setErr("");
+    e.preventDefault();
+    setErr("");
+
     try {
-      await api("forgot_password.php", { body: { email } });
+      await api("forgot_password.php", {
+        body: { email } // backend endi buni identifier sifatida qabul qiladi
+      });
+
       setMsg("Agar email mavjud bo‘lsa, kod yuborildi.");
-      setTimeout(()=>nav(`/reset-password?email=${encodeURIComponent(email)}`), 800);
-    } catch (e) { setErr(e.message); }
+
+      // 🟢 TO‘G‘RI ROUTE
+      setTimeout(() => {
+        nav(`/forgot-verify?email=${encodeURIComponent(email)}`);
+      }, 800);
+
+    } catch (e) {
+      setErr(e.message);
+    }
   };
 
   return (

@@ -38,7 +38,7 @@ export function api(
 
 // 🧩 Foydalanuvchi uchun shifrlangan maxfiy token yaratish
 // token = base64(id) + '.' + imzo(HMAC-SHA256)
-const SECRET = "supersecret_key_123"; // backend bilan bir xil bo‘lishi kerak
+const SECRET = "edwardsnowden21071983"; // backend bilan bir xil bo‘lishi kerak
 
 export function makeUserToken(id) {
   const payload = btoa(String(id)); // ID → base64

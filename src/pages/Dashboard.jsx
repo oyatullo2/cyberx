@@ -153,10 +153,11 @@ export default function Dashboard() {
     if (!user || !token) return;
     try {
       const userToken = makeUserToken(user.id);
-      const res = await api(`user_profile.php?t=${userToken}`, {
+      api(`user_profile.php?t=${encodeURIComponent(userToken)}`, {
         method: "GET",
         token,
       });
+
       const u = res.user || res;
       setFollowStats({
         followers: Number(res.followers || u.followers || 0),
@@ -269,8 +270,7 @@ export default function Dashboard() {
     return <div className="p-8 text-center text-slate-400">Yuklanmoqda...</div>;
   if (!user) return null;
 
-  const avatar =
-    user?.avatar_url || "/public/assets/default.webp";
+  const avatar = user?.avatar_url || "/public/assets/default.webp";
   const displayName = user?.name || user?.username || "User";
 
   const quick = useMemo(

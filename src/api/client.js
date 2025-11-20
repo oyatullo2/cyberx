@@ -38,11 +38,10 @@ export function api(
 
 // 🧩 Foydalanuvchi uchun shifrlangan maxfiy token yaratish
 // token = base64(id) + '.' + imzo(HMAC-SHA256)
-export function makeUserToken(id) {
-  if (!id) throw new Error("User ID is required to make token");
+const SECRET = "supersecret_key_123"; // backend bilan bir xil bo‘lishi kerak
 
-  const payload = btoa(String(id)); // foydalanuvchi ID shifrlanadi
-  const secret = "supersecret"; // ⚠️ bu backenddagi config.php dagi 'app_secret' bilan bir xil bo‘lishi kerak
-  const sign = CryptoJS.HmacSHA256(payload, secret).toString(CryptoJS.enc.Hex);
+export function makeUserToken(id) {
+  const payload = btoa(String(id)); // ID → base64
+  const sign = CryptoJS.HmacSHA256(payload, SECRET).toString(CryptoJS.enc.Hex);
   return `${payload}.${sign}`;
 }

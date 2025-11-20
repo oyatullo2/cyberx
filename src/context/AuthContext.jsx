@@ -78,7 +78,7 @@ export default function AuthProvider({ children }) {
     localStorage.removeItem("token");
   };
 
-  const value = {
+const value = {
   token,
   user,
   loading,
@@ -87,14 +87,15 @@ export default function AuthProvider({ children }) {
   setUser,
 
   adoptSessionFromGoogle,
-  adoptSessionFromGithub,
-  adoptSessionFromTelegram,
+  loginWithGoogleIdToken: adoptSessionFromGoogle,  // <-- FIX 1
 
-  // ALIAS — frontend chaqirishi uchun
-  loginWithGoogleIdToken: adoptSessionFromGoogle,
-  loginWithGithubCode: adoptSessionFromGithub,
-  loginWithTelegram: adoptSessionFromTelegram,
+  adoptSessionFromGithub,
+  loginWithGithubCode: adoptSessionFromGithub,    // <-- FIX 2
+
+  adoptSessionFromTelegram,
+  loginWithTelegram: adoptSessionFromTelegram     // <-- FIX 3
 };
+
 
 
 

@@ -270,9 +270,7 @@ export default function Dashboard() {
   if (!user) return null;
 
   const avatar =
-    user?.profile_image_url ||
-    user?.profile_image ||
-    "/public/assets/default.webp";
+    user?.avatar_url || "/public/assets/default.webp";
   const displayName = user?.name || user?.username || "User";
 
   const quick = useMemo(

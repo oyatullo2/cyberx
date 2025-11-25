@@ -1,7 +1,13 @@
 // src/api/client.js
-const BASE = (import.meta.env.VITE_API_BASE || "https://68d6acb30ea01.myxvest1.ru/backend/public/api").replace(/\/+$/,"");
+const BASE = "https://68d6acb30ea01.myxvest1.ru/backend/public/api".replace(
+  /\/+$/,
+  ""
+);
 
-export async function api(path, { method = "POST", body, token, formData = false } = {}) {
+export async function api(
+  path,
+  { method = "POST", body, token, formData = false } = {}
+) {
   const url = `${BASE}/${path.replace(/^\/+/, "")}`;
   const headers = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -10,12 +16,14 @@ export async function api(path, { method = "POST", body, token, formData = false
   const res = await fetch(url, {
     method,
     headers,
-    body: formData ? body : (body ? JSON.stringify(body) : undefined),
-    credentials: "include",
+    body: formData ? body : body ? JSON.stringify(body) : undefined,
+    // credentials: "include"
   });
 
   let data;
-  try { data = await res.json(); } catch {
+  try {
+    data = await res.json();
+  } catch {
     throw new Error(`Server javobi noto‘g‘ri (HTTP ${res.status})`);
   }
   if (!res.ok || data.ok === false) {

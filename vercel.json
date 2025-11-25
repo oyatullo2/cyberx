@@ -1,18 +1,15 @@
 {
   "version": 2,
-  "env": {
-    "NODE_VERSION": "20"
-  },
-  "buildCommand": "cd cyberx-frontend && npm install && npm run build",
-  "outputDirectory": "cyberx-frontend/dist",
-  "routes": [
+  "builds": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/api/$1.php"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "frontend/dist" }
     },
-    {
-      "src": "/(.*)",
-      "dest": "cyberx-frontend/dist/index.html"
-    }
+    { "src": "backend/api/**/*.php", "use": "vercel-php@0.6.0" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "backend/api/$1.php" },
+    { "src": "/(.*)", "dest": "frontend/dist/index.html" }
   ]
 }

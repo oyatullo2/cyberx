@@ -3,7 +3,7 @@
   "env": {
     "NODE_VERSION": "20"
   },
-  "buildCommand": "cd cyberx-frontend && npm install && npm run build",
+  "buildCommand": "cd CYBERX-FRONTEND && npm install && npm run build",
   "outputDirectory": "CYBERX-FRONTEND/dist",
   "routes": [
     {
